@@ -22,6 +22,6 @@ namespace ToDoListApp.DataAccess.Models
             return DbContext.GetInstance()
                 .Single<Category>(r => r.CategoryName.ToLower().Trim() == name.ToLower().Trim());
         }
-
+         
     }
 }

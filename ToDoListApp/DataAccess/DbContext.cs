@@ -56,8 +56,8 @@ namespace ToDoListApp.DataAccess
                 var todoItems = new List<TodoItem>
                     {
                         new TodoItem { CategoryId = 1, Description = "Check the todo item to mark it complete" },
-                        new TodoItem { CategoryId = 2, Description = "Filter using the calendar date" },
-                        new TodoItem { CategoryId = 3, Description = "Group tasks using categories" }
+                        new TodoItem { CategoryId = 1, Description = "Filter using the calendar date" },
+                        new TodoItem { CategoryId = 1, Description = "Group tasks using categories" }
                     };
                 db.SaveAll(todoItems);
             }
