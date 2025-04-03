@@ -23,10 +23,12 @@ namespace ToDoListApp
         private string _category = "All";
         private string _filter = "All";
         private string _searchTerm = "";
+        private bool _isDateFilterEnabled = false;
         public Form1()
         {
             InitializeComponent();
             LoadCategories();
+            this.Text = "ToDoList Application";
         }
 
         private void LoadCategories()
@@ -80,6 +82,15 @@ namespace ToDoListApp
             // Update the category filter
             this._category = categoryName;
 
+            // Nếu người dùng chọn "All" thì reset tất cả các filter
+            if (categoryName == "All")
+            {
+                _filter = "All";
+                _isDateFilterEnabled = false;
+                _searchTerm = "";
+                txtBoxSearch.Text = ""; // Clear the search textbox
+            }
+
             // Reload data with the new filter
             reloadData();
         }
@@ -93,6 +104,7 @@ namespace ToDoListApp
             {
                 data = data.Where(r => r.CategoryId == Category.GetCategoryByName(this._category).id).ToList();
             }
+
             if (_filter == "Completed")
             {
                 data = data.Where(t => t.Done).ToList();
@@ -106,7 +118,8 @@ namespace ToDoListApp
                 data = data.Where(t => t.StartDate.Date <= DateTime.Today && t.EndDate.Date >= DateTime.Today).ToList();
             }
 
-            if (_filter != "Today") // Only apply date filter if we're not already filtering for today
+            // Chỉ áp dụng lọc theo ngày khi _isDateFilterEnabled = true
+            if (_isDateFilterEnabled)
             {
                 data = data.Where(t => t.StartDate.Date <= _date.Date && t.EndDate.Date >= _date.Date).ToList();
             }
@@ -117,7 +130,6 @@ namespace ToDoListApp
                     t.Description.ToLower().Contains(_searchTerm) ||
                     t.GetCategory().CategoryName.ToLower().Contains(_searchTerm)).ToList();
             }
-
 
             grid.DataSource = null;
             grid.DataSource = data.Select(t => new
@@ -139,11 +151,31 @@ namespace ToDoListApp
             grid.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.Black;
 
             grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+
+
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                if (row.Cells["Status"].Value != null)
+                {
+                    string status = row.Cells["Status"].Value.ToString();
+                    if (status == "Completed")
+                    {
+                        row.Cells["Status"].Style.ForeColor = Color.FromArgb(77, 255,0); // Màu chữ trắng
+                        row.Cells["Status"].Style.Font = new Font("Segoe UI", 9); // In đậm
+                    }
+                    else if (status == "Pending")
+                    {
+                        row.Cells["Status"].Style.ForeColor = Color.FromArgb(255, 73, 73); // Màu chữ trắng
+                        row.Cells["Status"].Style.Font = new Font("Segoe UI", 9); // In đậm
+                    }
+                }
+            }
         }
 
 
         private void guna2DateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
+            _isDateFilterEnabled = true;
             this._date = guna2DateTimePicker1.Value;
             reloadData();
         }
@@ -170,6 +202,7 @@ namespace ToDoListApp
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            _isDateFilterEnabled = false;
             reloadData();
             this.grid.DefaultCellStyle.Font = new Font("Segoe UI", 9);
         }
@@ -658,6 +691,12 @@ namespace ToDoListApp
         private void PerformSearch()
         {
             // Reload data with the current filters and search term
+            reloadData();
+        }
+
+        private void btnToday_Click_1(object sender, EventArgs e)
+        {
+            _filter = "Today";
             reloadData();
         }
     }
